@@ -22,6 +22,8 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("com.rabbitmq:amqp-client:5.16.0")
+	implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
+	implementation("ch.qos.logback:logback-classic:1.2.6")
 
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

@@ -1,5 +1,6 @@
 package com.bees.integration.genericproducer
 
+import mu.KotlinLogging
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 import org.springframework.web.servlet.ModelAndView
@@ -8,22 +9,26 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Component
-class MessageInterceptor(worker:Worker) : HandlerInterceptor {
+class MessageInterceptor(val worker: Worker) : HandlerInterceptor {
 
-    val worker = worker
+    private val logger = KotlinLogging.logger {}
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
 
-        println("Pre handle was calling: ${request.requestURL} ${request.method} ${request.pathInfo} ${request.contextPath} ${request.requestURI}")
+        if (request == null || request.requestURI.isNullOrEmpty())
+            return false
 
         if (request.method == "POST") {
-            val content = request.inputStream.bufferedReader().use(BufferedReader::readText)
-            println("Body content: $content")
 
-            val topic = request.requestURI.split("/")[1]
+            val content = worker.getBodyContent(request.inputStream)
+            val entity = worker.getEntityName(request.requestURI)
 
-            worker.send(topic, "")
-
+            if (entity.isNotBlank() && content.isNotBlank()) {
+                worker.send(entity, content)
+                logger.info("Sent to $entity")
+            } else {
+                logger.info("Entity or message is empty!")
+            }
         } else {
             println("Method not mapped: ${request.method}")
         }
